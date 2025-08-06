@@ -46,6 +46,6 @@ app.use((req, res) =>{
     })
 })
 
-app.listen(port, '0.0.0.0', () => {
+app.listen(port, () => {
   console.log(`Aplicación escuchando en el puerto ${port}`)
 })  
