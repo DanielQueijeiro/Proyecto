@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const app = express()
 const port = process.env.PORT || '8080'
+const host = process.env.HOST || '0.0.0.0'
 
 const mongoose = require('mongoose');
 
@@ -46,6 +47,6 @@ app.use((req, res) =>{
     })
 })
 
-app.listen(port, () => {
-  console.log(`Aplicación escuchando en el puerto ${port}`)
+app.listen(port, host, () => {
+  console.log(`Aplicación escuchando en el puerto ${port} y en la dirección ${host}`)
 })  
