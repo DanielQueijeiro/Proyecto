@@ -78,7 +78,7 @@ async function guardar () {
     <div class="row">
       <div class="col-md-6">
         <h5 class="mb-3">Asignados</h5>
-        <div class="list-group min-vh-50 border" @dragover.prevent @drop="drop('asignados')">
+        <div class="list-group h-auto p-3 border" @dragover.prevent @drop="drop('asignados')">
           <div
             v-for="empleado in empleadosAsignados"
             :key="empleado._id"
@@ -92,7 +92,7 @@ async function guardar () {
       </div>
       <div class="col-md-6">
         <h5 class="mb-3">Disponibles</h5>
-        <div class="list-group min-vh-50 border" @dragover.prevent @drop="drop('libres')">
+        <div class="list-group h-auto p-3 border" @dragover.prevent @drop="drop('libres')">
           <div
             v-for="empleado in empleadosLibres"
             :key="empleado._id"
