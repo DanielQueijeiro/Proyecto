@@ -8,7 +8,7 @@ exports.deleteEmpresa = async (req, res) => {
         socket.getIO().emit('empresa:notificacion', {
             accion: 'eliminada',
             empresa: { id, nombre: empresaEliminada?.nombre },
-            usuario: req.user?.email
+            usuario: req.session?.user.email
         });
         res.status(200).json({ message: 'Empresa eliminada con éxito' });
     } catch (error) {

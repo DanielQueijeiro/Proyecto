@@ -29,7 +29,7 @@ exports.patchEmpresa = async (req, res) => {
         socket.getIO().emit('empresa:notificacion', {
             accion: 'actualizada',
             empresa: { id, nombre: nombre || empresaActualizada.nombre },
-            usuario: req.user?.email
+            usuario: req.session?.user.email
         });
         return res.status(200).json({ mensaje: 'Empresa actualizada con éxito' });
     } catch (error) {

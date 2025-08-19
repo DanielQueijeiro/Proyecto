@@ -7,12 +7,15 @@ const path = require('path')
 const http = require('http')
 const socket = require('./servicios/socket')
 const app = express()
+const helmet = require("helmet")
 const port = process.env.PORT || '8080'
 const host = process.env.HOST || '0.0.0.0'
 const passport = require('./servicios/passport')
-
 const mongoose = require('mongoose');
 
+app.use(helmet({
+  crossOriginResourcePolicy: false,})
+);
 
 mongoose
   .connect(process.env.MONGO_URI)

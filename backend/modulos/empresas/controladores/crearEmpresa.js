@@ -31,7 +31,7 @@ exports.postEmpresa = async (req, res) => {
         socket.getIO().emit('empresa:notificacion', {
             accion: 'creada',
             empresa: { id: nuevaEmpresa._id, nombre: nuevaEmpresa.nombre },
-            usuario: req.user?.email
+            usuario: req.session?.user.email
         });
         return res.status(201).json({
             message: 'Creación de empresas exitosa'
