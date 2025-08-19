@@ -70,7 +70,7 @@ async function crearEmpleado () {
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar(err.response.data.error, 'success')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
@@ -98,7 +98,7 @@ async function actualizarEmpleado () {
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar(err, 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
@@ -109,7 +109,7 @@ async function eliminarEmpleado (id) {
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar(err, 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 </script>
