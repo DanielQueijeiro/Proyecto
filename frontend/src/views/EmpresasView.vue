@@ -8,7 +8,7 @@ import { URL } from '@/api.js'
 const toast = useToastStore()
 
 const empresas = ref([])
-const defaultLogo = '/empresas/meta.webp'
+const defaultLogo = '/public/empresas/meta.webp'
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
