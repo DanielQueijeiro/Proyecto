@@ -24,17 +24,8 @@ watch(timestamp, () => {
 
 <template>
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div
-      id="liveToast"
-      class="toast"
-      role="alert"
-      aria-live="assertive"
-      aria-atomic="true"
-    >
-      <div
-        class="d-flex rounded"
-        :class="tipo === 'success' ? 'bg-success' : 'bg-danger'"
-      >
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex rounded" :class="tipo === 'success' ? 'bg-success' : 'bg-danger'">
         <div class="toast-body text-white">
           {{ mensaje }}
         </div>
