@@ -56,7 +56,7 @@ async function crearEmpresa () {
     await cargarEmpresas()
   } catch (error) {
     console.error(error)
-    toast.mostrar('Error al crear la empresa. Por favor, inténtalo de nuevo.', 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
@@ -85,7 +85,7 @@ async function actualizarEmpresa () {
     await cargarEmpresas()
   } catch (error) {
     console.error(error)
-    toast.mostrar('Error al actualizar la empresa. Por favor, inténtalo de nuevo.', 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
