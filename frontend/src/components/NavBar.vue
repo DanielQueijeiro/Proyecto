@@ -22,6 +22,9 @@ const authStore = useAuthStore()
         <RouterLink to="/empleados" class="nav-link px-2" v-if="authStore.isAuthenticated"
           >Empleados</RouterLink
         >
+        <RouterLink to="/reportes" class="nav-link px-2" v-if="authStore.isAuthenticated"
+          >Reportes</RouterLink
+        >
       </ul>
       <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <RouterLink
