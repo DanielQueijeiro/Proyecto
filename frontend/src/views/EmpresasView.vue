@@ -8,7 +8,7 @@ import { URL } from '@/api.js'
 const toast = useToastStore()
 
 const empresas = ref([])
-const defaultLogo = '/empresas/meta.webp'
+const defaultLogo = '/public/empresas/meta.webp'
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
@@ -21,12 +21,14 @@ const editingEmpresa = reactive({
   _id: null,
   nombre: '',
   direccion: '',
-  telefono: ''
+  telefono: '',
 })
+const createErrors = reactive({ nombre: '', direccion: '', telefono: '' })
+const editErrors = reactive({ nombre: '', direccion: '', telefono: '' })
 
 onMounted(cargarEmpresas)
 
-async function cargarEmpresas () {
+async function cargarEmpresas() {
   try {
     const resp = await axios.get(`${URL}empresas/consultar`)
     empresas.value = resp.data
@@ -36,15 +38,26 @@ async function cargarEmpresas () {
   }
 }
 
-function openCreateModal () {
+function validarEmpresaData(emp, errors) {
+  errors.nombre = emp.nombre.trim() ? '' : 'El nombre es obligatorio'
+  errors.direccion = emp.direccion.trim() ? '' : 'La dirección es obligatoria'
+  errors.telefono = /^[0-9]{7,15}$/.test(emp.telefono) ? '' : 'Teléfono inválido'
+  return !errors.nombre && !errors.direccion && !errors.telefono
+}
+
+function openCreateModal() {
   newEmpresa.nombre = ''
   newEmpresa.direccion = ''
   newEmpresa.telefono = ''
   newLogo.value = ''
+  createErrors.nombre = ''
+  createErrors.direccion = ''
+  createErrors.telefono = ''
   showCreateModal.value = true
 }
 
-async function crearEmpresa () {
+async function crearEmpresa() {
+  if (!validarEmpresaData(newEmpresa, createErrors)) return
   try {
     const payload = { ...newEmpresa }
     if (newLogo.value) {
@@ -56,25 +69,29 @@ async function crearEmpresa () {
     await cargarEmpresas()
   } catch (error) {
     console.error(error)
-    toast.mostrar('Error al crear la empresa. Por favor, inténtalo de nuevo.', 'error')
+    toast.mostrar(error.response.data.error, 'error')
   }
 }
 
-function openEditModal (empresa) {
+function openEditModal(empresa) {
   editingEmpresa._id = empresa._id
   editingEmpresa.nombre = empresa.nombre
   editingEmpresa.direccion = empresa.direccion
   editingEmpresa.telefono = empresa.telefono
   editingLogo.value = ''
+  editErrors.nombre = ''
+  editErrors.direccion = ''
+  editErrors.telefono = ''
   showEditModal.value = true
 }
 
-async function actualizarEmpresa () {
+async function actualizarEmpresa() {
+  if (!validarEmpresaData(editingEmpresa, editErrors)) return
   try {
     const payload = {
       nombre: editingEmpresa.nombre,
       direccion: editingEmpresa.direccion,
-      telefono: editingEmpresa.telefono
+      telefono: editingEmpresa.telefono,
     }
     if (editingLogo.value) {
       payload.logo = editingLogo.value
@@ -85,11 +102,11 @@ async function actualizarEmpresa () {
     await cargarEmpresas()
   } catch (error) {
     console.error(error)
-    toast.mostrar('Error al actualizar la empresa. Por favor, inténtalo de nuevo.', 'error')
+    toast.mostrar(error.response.data.error, 'error')
   }
 }
 
-async function eliminarEmpresa (id) {
+async function eliminarEmpresa(id) {
   try {
     await axios.delete(`${URL}empresas/eliminar/${id}`)
     empresas.value = empresas.value.filter((empresa) => empresa._id !== id)
@@ -100,7 +117,7 @@ async function eliminarEmpresa (id) {
   }
 }
 
-function handleFileChange (event, type) {
+function handleFileChange(event, type) {
   const file = event.target.files[0]
   if (!file) return
   const reader = new FileReader()
@@ -143,9 +160,7 @@ function handleFileChange (event, type) {
               width="225"
             />
             <div class="card-body">
-              <p class="card-text">
-                {{ empresa.nombre }} - {{ empresa.direccion }}
-              </p>
+              <p class="card-text">{{ empresa.nombre }} - {{ empresa.direccion }}</p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="btn-group">
                   <button
@@ -178,12 +193,7 @@ function handleFileChange (event, type) {
   </div>
 
   <!-- Modal Crear -->
-  <div
-    v-if="showCreateModal"
-    class="modal fade show"
-    style="display: block"
-    tabindex="-1"
-  >
+  <div v-if="showCreateModal" class="modal fade show" style="display: block" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -193,15 +203,33 @@ function handleFileChange (event, type) {
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Nombre</label>
-            <input v-model="newEmpresa.nombre" type="text" class="form-control" />
+            <input
+              v-model="newEmpresa.nombre"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': createErrors.nombre }"
+            />
+            <div class="invalid-feedback">{{ createErrors.nombre }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Dirección</label>
-            <input v-model="newEmpresa.direccion" type="text" class="form-control" />
+            <input
+              v-model="newEmpresa.direccion"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': createErrors.direccion }"
+            />
+            <div class="invalid-feedback">{{ createErrors.direccion }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Teléfono</label>
-            <input v-model="newEmpresa.telefono" type="text" class="form-control" />
+            <input
+              v-model="newEmpresa.telefono"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': createErrors.telefono }"
+            />
+            <div class="invalid-feedback">{{ createErrors.telefono }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Logo</label>
@@ -212,21 +240,14 @@ function handleFileChange (event, type) {
           <button type="button" class="btn btn-secondary" @click="showCreateModal = false">
             Cancelar
           </button>
-          <button type="button" class="btn btn-primary" @click="crearEmpresa">
-            Guardar
-          </button>
+          <button type="button" class="btn btn-primary" @click="crearEmpresa">Guardar</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Modal Editar -->
-  <div
-    v-if="showEditModal"
-    class="modal fade show"
-    style="display: block"
-    tabindex="-1"
-  >
+  <div v-if="showEditModal" class="modal fade show" style="display: block" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -236,15 +257,33 @@ function handleFileChange (event, type) {
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Nombre</label>
-            <input v-model="editingEmpresa.nombre" type="text" class="form-control" />
+            <input
+              v-model="editingEmpresa.nombre"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': editErrors.nombre }"
+            />
+            <div class="invalid-feedback">{{ editErrors.nombre }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Dirección</label>
-            <input v-model="editingEmpresa.direccion" type="text" class="form-control" />
+            <input
+              v-model="editingEmpresa.direccion"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': editErrors.direccion }"
+            />
+            <div class="invalid-feedback">{{ editErrors.direccion }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Teléfono</label>
-            <input v-model="editingEmpresa.telefono" type="text" class="form-control" />
+            <input
+              v-model="editingEmpresa.telefono"
+              type="text"
+              class="form-control"
+              :class="{ 'is-invalid': editErrors.telefono }"
+            />
+            <div class="invalid-feedback">{{ editErrors.telefono }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">Logo</label>

@@ -19,7 +19,7 @@ onMounted(async () => {
   await cargarDatos()
 })
 
-async function cargarDatos () {
+async function cargarDatos() {
   try {
     const respEmpresa = await axios.get(`${URL}empresas/consultar/${route.params.id}`)
     empresa.value = respEmpresa.data
@@ -33,36 +33,35 @@ async function cargarDatos () {
   }
 }
 
-function drag (empleado, origen) {
+function drag(empleado, origen) {
   dragEmpleado.value = empleado
   dragOrigen.value = origen
 }
 
-function drop (destino) {
+function drop(destino) {
   if (!dragEmpleado.value || dragOrigen.value === destino) return
   if (dragOrigen.value === 'libres') {
-    empleadosLibres.value = empleadosLibres.value.filter(e => e._id !== dragEmpleado.value._id)
+    empleadosLibres.value = empleadosLibres.value.filter((e) => e._id !== dragEmpleado.value._id)
     empleadosAsignados.value.push(dragEmpleado.value)
   } else {
-    empleadosAsignados.value = empleadosAsignados.value.filter(e => e._id !== dragEmpleado.value._id)
+    empleadosAsignados.value = empleadosAsignados.value.filter(
+      (e) => e._id !== dragEmpleado.value._id,
+    )
     empleadosLibres.value.push(dragEmpleado.value)
   }
   dragEmpleado.value = null
   dragOrigen.value = ''
 }
 
-async function guardar () {
+async function guardar() {
   try {
-    await axios.patch(
-      `${URL}empresas/actualizar/${empresa.value._id}`,
-      {
-        nombre: empresa.value.nombre,
-        direccion: empresa.value.direccion,
-        telefono: empresa.value.telefono,
-        empleados: empleadosAsignados.value.map(e => e._id),
-        areas: empresa.value.areas ? empresa.value.areas.map(a => a._id) : []
-      }
-    )
+    await axios.patch(`${URL}empresas/actualizar/${empresa.value._id}`, {
+      nombre: empresa.value.nombre,
+      direccion: empresa.value.direccion,
+      telefono: empresa.value.telefono,
+      empleados: empleadosAsignados.value.map((e) => e._id),
+      areas: empresa.value.areas ? empresa.value.areas.map((a) => a._id) : [],
+    })
     toast.mostrar('Empleados actualizados correctamente', 'success')
     router.push('/empresas')
   } catch (error) {

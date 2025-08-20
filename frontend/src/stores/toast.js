@@ -15,6 +15,6 @@ export const useToastStore = defineStore('toast', {
     limpiar() {
       this.mensaje = ''
       this.timestamp = 0
-    }
-  }
+    },
+  },
 })

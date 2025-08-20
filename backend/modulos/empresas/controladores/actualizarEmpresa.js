@@ -2,8 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const Empresa = require('../../../modelos/empresas/empresas.modelo');
 const socket = require('../../../servicios/socket');
+const { validationResult } = require('express-validator');
 
 exports.patchEmpresa = async (req, res) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() })
+    }
     try {
         const { id } = req.params;
         const { nombre, empleados, areas, direccion, telefono, logo } = req.body;
@@ -29,10 +34,15 @@ exports.patchEmpresa = async (req, res) => {
         socket.getIO().emit('empresa:notificacion', {
             accion: 'actualizada',
             empresa: { id, nombre: nombre || empresaActualizada.nombre },
-            usuario: req.user?.email
+            usuario: req.session?.user.email
         });
         return res.status(200).json({ mensaje: 'Empresa actualizada con éxito' });
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({
+                error: 'El nombre de la empresa ya está en uso'
+            });
+        }
         console.error('Error al actualizar la empresa:', error);
         return res.status(500).json({ mensaje: 'Error al actualizar la empresa' });
     }

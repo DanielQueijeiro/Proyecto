@@ -22,7 +22,12 @@ exports.postIniciarSesion = async (req, res) => {
         error: 'Credenciales inválidas'
       })
     }
-    req.session.user = { id: empleado._id, permisos: empleado.permisos || [] }
+    req.session.user = { 
+      id: empleado._id, 
+      nombre: empleado.nombre,
+      email: empleado.correo,
+      permisos: empleado.permisos || []  
+    }
     res.json({ user: { id: empleado._id, nombre: empleado.nombre } })
   } catch (error) {
     console.error('Error al iniciar sesión:', error)

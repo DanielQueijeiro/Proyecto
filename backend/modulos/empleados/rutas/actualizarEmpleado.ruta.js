@@ -19,7 +19,7 @@ router.patch(
       .isEmail()
       .withMessage('Correo inválido'),
     body('contrasena')
-      .optional()
+      .optional({ values: 'falsy'})
       .isLength({ min: 6 })
       .withMessage('La contraseña debe tener al menos 6 caracteres')
   ],

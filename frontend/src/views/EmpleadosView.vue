@@ -13,7 +13,7 @@ const empleados = ref([])
 const columns = [
   { label: 'Nombre', field: 'nombre', sortable: true },
   { label: 'Correo', field: 'correo', sortable: true },
-  { label: 'Acciones', field: 'actions' }
+  { label: 'Acciones', field: 'actions' },
 ]
 
 const showCreateModal = ref(false)
@@ -26,7 +26,7 @@ const editErrors = reactive({ nombre: '', correo: '', contrasena: '' })
 
 onMounted(cargarEmpleados)
 
-async function cargarEmpleados () {
+async function cargarEmpleados() {
   try {
     const resp = await axios.get(`${URL}empleados/consultar`)
     empleados.value = resp.data
@@ -36,7 +36,7 @@ async function cargarEmpleados () {
   }
 }
 
-function openCreateModal () {
+function openCreateModal() {
   newEmpleado.nombre = ''
   newEmpleado.correo = ''
   newEmpleado.contrasena = ''
@@ -46,22 +46,19 @@ function openCreateModal () {
   showCreateModal.value = true
 }
 
-function validarEmpleadoData (emp, errors, requirePassword = true) {
+function validarEmpleadoData(emp, errors, requirePassword = true) {
   errors.nombre = emp.nombre.trim() ? '' : 'El nombre es obligatorio'
-  errors.correo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emp.correo)
-    ? ''
-    : 'Correo inválido'
+  errors.correo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emp.correo) ? '' : 'Correo inválido'
   if (requirePassword || emp.contrasena) {
-    errors.contrasena = emp.contrasena.length >= 6
-      ? ''
-      : 'La contraseña debe tener al menos 6 caracteres'
+    errors.contrasena =
+      emp.contrasena.length >= 6 ? '' : 'La contraseña debe tener al menos 6 caracteres'
   } else {
     errors.contrasena = ''
   }
   return !errors.nombre && !errors.correo && !errors.contrasena
 }
 
-async function crearEmpleado () {
+async function crearEmpleado() {
   if (!validarEmpleadoData(newEmpleado, createErrors, true)) return
   try {
     await axios.post(`${URL}empleados/crear`, { ...newEmpleado })
@@ -70,11 +67,11 @@ async function crearEmpleado () {
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar('Error al crear el empleado.', 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
-function openEditModal (empleado) {
+function openEditModal(empleado) {
   editingEmpleado._id = empleado._id
   editingEmpleado.nombre = empleado.nombre
   editingEmpleado.correo = empleado.correo
@@ -85,31 +82,31 @@ function openEditModal (empleado) {
   showEditModal.value = true
 }
 
-async function actualizarEmpleado () {
+async function actualizarEmpleado() {
   if (!validarEmpleadoData(editingEmpleado, editErrors, false)) return
   try {
     await axios.patch(`${URL}empleados/actualizar/${editingEmpleado._id}`, {
       nombre: editingEmpleado.nombre,
       correo: editingEmpleado.correo,
-      contrasena: editingEmpleado.contrasena
+      contrasena: editingEmpleado.contrasena,
     })
     toast.mostrar('Empleado actualizado correctamente.', 'success')
     showEditModal.value = false
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar('Error al actualizar el empleado.', 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 
-async function eliminarEmpleado (id) {
+async function eliminarEmpleado(id) {
   try {
     await axios.delete(`${URL}empleados/eliminar/${id}`)
     toast.mostrar('Empleado eliminado correctamente.', 'success')
     await cargarEmpleados()
   } catch (err) {
     console.error(err)
-    toast.mostrar('Error al eliminar el empleado.', 'error')
+    toast.mostrar(err.response.data.error, 'error')
   }
 }
 </script>
@@ -137,10 +134,7 @@ async function eliminarEmpleado (id) {
     >
       <template #table-row="props">
         <span v-if="props.column.field === 'actions'">
-          <button
-            class="btn btn-sm btn-outline-primary me-2"
-            @click="openEditModal(props.row)"
-          >
+          <button class="btn btn-sm btn-outline-primary me-2" @click="openEditModal(props.row)">
             Editar
           </button>
           <button
@@ -156,12 +150,7 @@ async function eliminarEmpleado (id) {
   </div>
 
   <!-- Modal Crear -->
-  <div
-    v-if="showCreateModal"
-    class="modal fade show"
-    style="display: block" 
-    tabindex="-1"
-  >
+  <div v-if="showCreateModal" class="modal fade show" style="display: block" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -201,7 +190,9 @@ async function eliminarEmpleado (id) {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="showCreateModal = false">Cancelar</button>
+          <button type="button" class="btn btn-secondary" @click="showCreateModal = false">
+            Cancelar
+          </button>
           <button type="button" class="btn btn-primary" @click="crearEmpleado">Guardar</button>
         </div>
       </div>
@@ -210,12 +201,7 @@ async function eliminarEmpleado (id) {
   <div v-if="showCreateModal" class="modal-backdrop fade show"></div>
 
   <!-- Modal Editar -->
-  <div
-    v-if="showEditModal"
-    class="modal fade show"
-    style="display: block" 
-    tabindex="-1"
-  >
+  <div v-if="showEditModal" class="modal fade show" style="display: block" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -255,8 +241,12 @@ async function eliminarEmpleado (id) {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="showEditModal = false">Cancelar</button>
-          <button type="button" class="btn btn-primary" @click="actualizarEmpleado">Actualizar</button>
+          <button type="button" class="btn btn-secondary" @click="showEditModal = false">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" @click="actualizarEmpleado">
+            Actualizar
+          </button>
         </div>
       </div>
     </div>
