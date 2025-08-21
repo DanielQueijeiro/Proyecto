@@ -10,21 +10,26 @@ const authStore = useAuthStore()
 const toast = useToastStore()
 
 const empleados = ref([])
+const roles = ref([])
 const columns = [
   { label: 'Nombre', field: 'nombre', sortable: true },
   { label: 'Correo', field: 'correo', sortable: true },
+  { label: 'Rol', field: 'rol', sortable: true },
   { label: 'Acciones', field: 'actions' }
 ]
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 
-const newEmpleado = reactive({ nombre: '', correo: '', contrasena: '' })
-const editingEmpleado = reactive({ _id: null, nombre: '', correo: '', contrasena: '' })
-const createErrors = reactive({ nombre: '', correo: '', contrasena: '' })
-const editErrors = reactive({ nombre: '', correo: '', contrasena: '' })
+const newEmpleado = reactive({ nombre: '', correo: '', contrasena: '', rol: '' })
+const editingEmpleado = reactive({ _id: null, nombre: '', correo: '', contrasena: '', rol: '' })
+const createErrors = reactive({ nombre: '', correo: '', contrasena: '', rol: '' })
+const editErrors = reactive({ nombre: '', correo: '', contrasena: '', rol: '' })
 
-onMounted(cargarEmpleados)
+onMounted(() => {
+  cargarEmpleados()
+  cargarRoles()
+})
 
 async function cargarEmpleados () {
   try {
@@ -36,13 +41,25 @@ async function cargarEmpleados () {
   }
 }
 
+async function cargarRoles () {
+  try {
+    const resp = await axios.get(`${URL}roles/consultar`)
+    roles.value = resp.data
+  } catch (err) {
+    console.error(err)
+    toast.mostrar('Error al cargar los roles. Inténtalo de nuevo.', 'error')
+  }
+}
+
 function openCreateModal () {
   newEmpleado.nombre = ''
   newEmpleado.correo = ''
   newEmpleado.contrasena = ''
+  newEmpleado.rol = ''
   createErrors.nombre = ''
   createErrors.correo = ''
   createErrors.contrasena = ''
+  createErrors.rol = ''
   showCreateModal.value = true
 }
 
@@ -58,7 +75,8 @@ function validarEmpleadoData (emp, errors, requirePassword = true) {
   } else {
     errors.contrasena = ''
   }
-  return !errors.nombre && !errors.correo && !errors.contrasena
+  errors.rol = emp.rol ? '' : 'El rol es obligatorio'
+  return !errors.nombre && !errors.correo && !errors.contrasena && !errors.rol
 }
 
 async function crearEmpleado () {
@@ -75,13 +93,16 @@ async function crearEmpleado () {
 }
 
 function openEditModal (empleado) {
+  console.log('Editando empleado:', empleado)
   editingEmpleado._id = empleado._id
   editingEmpleado.nombre = empleado.nombre
   editingEmpleado.correo = empleado.correo
   editingEmpleado.contrasena = ''
+  editingEmpleado.rol = empleado.rol?._id || empleado.rol
   editErrors.nombre = ''
   editErrors.correo = ''
   editErrors.contrasena = ''
+  editErrors.rol = ''
   showEditModal.value = true
 }
 
@@ -91,7 +112,8 @@ async function actualizarEmpleado () {
     await axios.patch(`${URL}empleados/actualizar/${editingEmpleado._id}`, {
       nombre: editingEmpleado.nombre,
       correo: editingEmpleado.correo,
-      contrasena: editingEmpleado.contrasena
+      contrasena: editingEmpleado.contrasena,
+      rol: editingEmpleado.rol
     })
     toast.mostrar('Empleado actualizado correctamente.', 'success')
     showEditModal.value = false
@@ -136,6 +158,9 @@ async function eliminarEmpleado (id) {
       :pagination-options="{ enabled: true, perPage: 5 }"
     >
       <template #table-row="props">
+        <span v-if="props.column.field === 'rol'">
+          {{ props.row.rol.nombre }}
+        </span>
         <span v-if="props.column.field === 'actions'">
           <button
             class="btn btn-sm btn-outline-primary me-2"
@@ -199,6 +224,18 @@ async function eliminarEmpleado (id) {
             />
             <div class="invalid-feedback">{{ createErrors.contrasena }}</div>
           </div>
+          <div class="mb-3">
+            <label class="form-label">Rol</label>
+            <select
+              class="form-select"
+              v-model="newEmpleado.rol"
+              :class="{ 'is-invalid': createErrors.rol }"
+            >
+              <option selected value="">Seleccione un rol</option>
+              <option v-for="rol in roles" :key="rol._id" :value="rol._id">{{ rol.nombre }}</option>
+            </select>
+            <div class="invalid-feedback">{{ createErrors.rol }}</div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="showCreateModal = false">Cancelar</button>
@@ -252,6 +289,18 @@ async function eliminarEmpleado (id) {
               :class="{ 'is-invalid': editErrors.contrasena }"
             />
             <div class="invalid-feedback">{{ editErrors.contrasena }}</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Rol</label>
+            <select
+              class="form-select"
+              v-model="editingEmpleado.rol"
+              :class="{ 'is-invalid': editErrors.rol }"
+            >
+              <option value="">Seleccione un rol</option>
+              <option v-for="rol in roles" :key="rol._id" :value="rol._id">{{ rol.nombre }}</option>
+            </select>
+            <div class="invalid-feedback">{{ editErrors.rol }}</div>
           </div>
         </div>
         <div class="modal-footer">

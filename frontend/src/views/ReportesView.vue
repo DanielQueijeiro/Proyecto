@@ -1,12 +1,11 @@
 <script setup>
 import jsPDF from 'jspdf'
+import { onMounted } from 'vue'
 
-const formCharacterProfile = document.querySelector("#form-character-profile");
-const previewBtn = formCharacterProfile.querySelector(".preview-pdf-btn");
-const errorMessageContainer = document.querySelector(
-  "#error-message-container"
-);
-const frame = document.querySelector("#frame");
+let formCharacterProfile;
+let previewBtn;
+let errorMessageContainer;
+let frame;
 
 const handleOnSubmitForm = (e) => {
   e.preventDefault();
@@ -26,7 +25,7 @@ const handleOnSubmitForm = (e) => {
         const option = field.querySelector(`[value=${value}]`);
         characterData[attribute] = {
           name: option.innerHTML,
-          image: option.dataset.imageUrl,
+          //image: option.dataset.imageUrl,
         };
       }
     }
@@ -44,7 +43,7 @@ const generatePDF = (characterData, preview) => {
   doc.text(characterData.name, 60, 30);
   doc.setFont("helvetica", "normal");
   doc.text(characterData.surname, 60, 42);
-  doc.addImage(characterData.type.image, "PNG", 5, 0, 50, 50);
+  //doc.addImage(characterData.type.image, "PNG", 5, 0, 50, 50);
   doc.setFontSize(20);
   const docWidth = doc.internal.pageSize.getWidth();
   const docHeight = doc.internal.pageSize.getHeight();
@@ -73,16 +72,25 @@ const generatePDF = (characterData, preview) => {
   doc.save(`${characterData.name}-${characterData.surname}`);
 };
 
-previewBtn.addEventListener("click", () => {
+const handlePreviewClick = () => {
   const event = new Event("submit");
   event.isPreview = true;
   formCharacterProfile.dispatchEvent(event);
+};
+
+onMounted(() => {
+  formCharacterProfile = document.querySelector("#form-character-profile");
+  previewBtn = formCharacterProfile.querySelector(".preview-pdf-btn");
+  errorMessageContainer = document.querySelector("#error-message-container");
+  frame = document.querySelector("#frame");
+
+  previewBtn.addEventListener("click", handlePreviewClick);
+  formCharacterProfile.addEventListener("submit", handleOnSubmitForm);
 });
-formCharacterProfile.addEventListener("submit", handleOnSubmitForm);
 </script>
 
 <template>
-        <div class="block md:flex main-layout w-screen">
+    <div class="block md:flex main-layout w-screen">
       <div class="flex justify-center items-center p-5">
         <form id="form-character-profile" class="w-full">
           <div class="mb-5">

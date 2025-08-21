@@ -55,11 +55,13 @@ const empresasRutas = require('./modulos/empresas/rutas/empresasIndice')
 const empleadosRutas = require('./modulos/empleados/rutas/empleadosIndice.js')
 const areasRutas = require('./modulos/areas/rutas/areasIndice')
 const sesionRutas = require('./modulos/sesion/rutas/sesionIndice')
+const rolesRutas = require('./modulos/roles/rutas/rolesIndice')
 
 app.use('/empresas', empresasRutas)
 app.use('/empleados', empleadosRutas)
 app.use('/areas', areasRutas)
 app.use('/sesion', sesionRutas)
+app.use('/roles', rolesRutas)
 
 app.use((req, res) =>{
     res.status(404).json({

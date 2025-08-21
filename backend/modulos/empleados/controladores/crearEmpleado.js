@@ -9,13 +9,13 @@ exports.postEmpleado = async (req, res) => {
     return res.status(400).json({ errors: errors.array() })
   }
 
-  const { nombre, correo, contrasena } = req.body
+  const { nombre, correo, contrasena, rol } = req.body
 
   const rondasHasheo = 12
   const contrasenaHasheada = await bcrypt.hash(contrasena, rondasHasheo)
 
   try {
-    await Empleado.postEmpleado(nombre, correo, contrasenaHasheada)
+    await Empleado.postEmpleado(nombre, correo, contrasenaHasheada, rol)
     return res.status(201).json({
       message: 'Empleado creado exitosamente'
     })

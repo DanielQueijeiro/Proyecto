@@ -19,9 +19,13 @@ router.patch(
       .isEmail()
       .withMessage('Correo inválido'),
     body('contrasena')
-      .optional()
+      .optional({ checkFalsy: true })
       .isLength({ min: 6 })
-      .withMessage('La contraseña debe tener al menos 6 caracteres')
+      .withMessage('La contraseña debe tener al menos 6 caracteres'),
+    body('rol')
+      .optional()
+      .notEmpty()
+      .withMessage('Rol inválido'),
   ],
   actualizarEmpleadoControlador.patchEmpleado
 )

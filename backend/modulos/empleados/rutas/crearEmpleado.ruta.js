@@ -10,11 +10,18 @@ router.post(
   '/',
   verificarSesion,
   [
-    body('nombre').notEmpty().withMessage('El nombre es obligatorio'),
-    body('correo').isEmail().withMessage('Correo inválido'),
+    body('nombre')
+      .notEmpty()
+      .withMessage('El nombre es obligatorio'),
+    body('correo')
+      .isEmail()
+      .withMessage('Correo inválido'),
     body('contrasena')
       .isLength({ min: 6 })
-      .withMessage('La contraseña debe tener al menos 6 caracteres')
+      .withMessage('La contraseña debe tener al menos 6 caracteres'),
+    body('rol')
+      .notEmpty()
+      .withMessage('El rol es obligatorio')
   ],
   crearEmpleadoControlador.postEmpleado
 )

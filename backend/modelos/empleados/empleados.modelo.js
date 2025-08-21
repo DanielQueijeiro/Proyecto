@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { Empresa } = require('../empresas/empresas.modelo')
+const { Rol } = require('../roles/roles.modelo')
 
 const empleadoSchema = new mongoose.Schema({
     _id: {
@@ -19,18 +20,23 @@ const empleadoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    rol: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Roles',
+        required: true,
+    }
 });
 
 const Empleado = mongoose.model('Empleados', empleadoSchema);
 
 
 async function getEmpleadoById(id) {
-    const empleado = await Empleado.findById(id);
+    const empleado = await Empleado.findById(id).populate('rol');
     return empleado;
 }
 
 async function getEmpleados() {
-    const empleados = await Empleado.find();
+    const empleados = await Empleado.find().populate('rol');
     return empleados;
 }
 
@@ -44,13 +50,19 @@ async function getEmpleadosLibres() {
     return empleados.filter((e) => !asignados.has(e._id.toString()));
 }
 
-async function postEmpleado(nombre, correo, contrasena) {
+async function postEmpleado(nombre, correo, contrasena, rol) {
     const empleado = await Empleado.create({
         nombre,
         correo,
-        contrasena
+        contrasena,
+        rol
     });
     await empleado.save();
+
+    if (empleado.rol) {
+        await empleado.populate('rol');
+    }
+
     return empleado;
 }
 

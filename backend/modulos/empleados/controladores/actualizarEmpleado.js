@@ -11,7 +11,7 @@ exports.patchEmpleado = async (req, res) => {
 
   try {
     const { id } = req.params
-    const { nombre, correo, contrasena } = req.body
+    const { nombre, correo, contrasena, rol } = req.body
 
     const datosActualizados = {}
     if (nombre) datosActualizados.nombre = nombre
@@ -20,6 +20,7 @@ exports.patchEmpleado = async (req, res) => {
       const rondasHasheo = 12
       datosActualizados.contrasena = await bcrypt.hash(contrasena, rondasHasheo)
     }
+    if (rol) datosActualizados.rol = rol
 
     await Empleado.patchEmpleado(id, datosActualizados)
     return res.status(200).json({
