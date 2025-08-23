@@ -3,23 +3,14 @@ import { ref } from 'vue'
 import axios from 'axios'
 import { URL } from '@/api.js'
 import ErrorGrid from '@/components/ErrorGrid.vue'
-import { useToastStore } from '@/stores/toast.js'
 
 const file = ref(null)
 const errors = ref([])
 const loading = ref(false)
 const resultMessage = ref('')
 
-const toast = useToastStore()
-
 function handleFile(event) {
-  const selectedFile = event.target.files[0]
-  if (selectedFile && selectedFile.type === 'text/csv') {
-    file.value = selectedFile
-  } else {
-    file.value = null
-    toast.mostrar('Por favor selecciona un archivo CSV válido', 'error')
-  }
+  file.value = event.target.files[0]
 }
 
 function handleSubmit() {
@@ -67,7 +58,7 @@ function handleSubmit() {
         type="submit"
         class="btn btn-primary mb-3"
         @click="handleSubmit"
-        :disabled="loading || !file"
+        :disabled="loading"
       >
         <span
           v-if="loading"
