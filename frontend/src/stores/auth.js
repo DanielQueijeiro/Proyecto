@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', {
         if (resp.data.usuario) {
           this.login(resp.data.usuario)
         }
-      } catch (e) {
+      } catch {
         // ignorar
       }
     },

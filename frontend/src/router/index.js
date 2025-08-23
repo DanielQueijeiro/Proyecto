@@ -61,7 +61,7 @@ router.beforeEach(async (to, from, next) => {
         auth.login(resp.data.usuario)
         return next()
       }
-    } catch (e) {
+    } catch {
       // ignorar
     }
     return next({ name: 'login' })
