@@ -1,7 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const { validarCsv } = require('../controladores/validarCsv');
+const multer = require('multer');
+const { validarArchivoDesdeBuffer } = require('../controladores/validarCsv');
 
-router.post('/', validarCsv);
+const router = express.Router();
+const upload = multer( );
+
+router.post('/sheet-file', upload.single('file'), validarArchivoDesdeBuffer)
+
 
 module.exports = router;
